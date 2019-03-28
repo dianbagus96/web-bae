@@ -13,7 +13,7 @@
         <td>Jakarta</td>
     </tr>
 </table>
-<table width="100%" border="0">
+<table width="100%" cellspacing="0">
     <tr align="center">
         <td  >
             <th align="center">
@@ -31,19 +31,22 @@
     <tr>
         <td>&nbsp;</td>
     </tr>
+    
     <tr>
-        <td colspan="2" >PAID UP CAPITAL : <?= $paid ?></td>
+        <td style="border-bottom: 2px solid black" colspan="2" >PAID UP CAPITAL : <?= number_format($paid, 0); ?></td>
         
-        <td colspan="2" >AS DATE: <?= date("d/m/Y") ?></td>
+        <td style="border-bottom: 2px solid black" colspan="2" >AS DATE: <?= date("d/m/Y") ?></td>
     </tr>
     <tr>
-        <td  align="right"><b>No</b></td>
-        <td><b>Nama Address</b></td>
-        <td><b>Jumlah Saham</b></td>
-        <td><b>Percent</b></td>
+        <td style="border-bottom: 2px solid black"  align="right"><b>No</b></td>
+        <td style="border-bottom: 2px solid black"><b>Nama Address</b></td>
+        <td style="border-bottom: 2px solid black"><b>Jumlah Saham</b></td>
+        <td style="border-bottom: 2px solid black"><b>Percent</b></td>
     </tr>
     <?php 
     $i = 1;
+    $persentage=0;
+    $paids=0;
     foreach($investor as $row){
     ?>
     <tr>
@@ -63,9 +66,18 @@
         </td>
     </tr>
     <?php 
+    $persentage = $persentage+ $row['persen'];
+    $paids=$paids+$row['jml_saham'];
     $i++;
     }
     ?>
+
+    <tr>
+        <td  style="border-bottom: 2px solid black">&nbsp;</td>
+        <td style="border-bottom: 2px solid black"></td>
+        <td style="border-bottom: 2px solid black"></td>
+        <td style="border-bottom: 2px solid black"></td>
+    </tr>
     <tr>
         <td>&nbsp;</td>
     </tr>
@@ -76,11 +88,11 @@
     </tr>
     <tr>
         <td>Total Amount </td>
-        <td>: <?= $paid ?></td>
+        <td>: <?= number_format($paids, 0) ?></td>
     </tr>
     <tr>
         <td>Percentase </td>
-        <td>: <?= substr($persen, 0, 6) ?> %</td>
+        <td>: <?= substr($persentage, 0, 6) ?> %</td>
     </tr>
     <tr>
         <td>&nbsp;</td>

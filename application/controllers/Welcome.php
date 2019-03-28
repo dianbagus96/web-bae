@@ -19,20 +19,36 @@ class Welcome extends CI_Controller {
 	 * @see https://codeigniter.com/user_guide/general/urls.html
 	 */
 	
+	var $page = '';
+	var $sub = '';
+
+	public function __construct(){
+		parent::__construct();
+		$this->load->library('parser');
+	}
 
 	public function index()
 	{
 		$sql = "SELECT id, nama FROM tm_company";
 		$data['list'] = $this->db->query($sql)->result_array();
 		
-		$this->load->view('signin',  $data);
+		
+		$data = array(
+			'header' => $this->load->view('meta/header', '', TRUE),
+			'sidebar' => $this->load->view('meta/sidebar', '', TRUE),
+            'content' => $this->page != '' ? $this->page : $this->load->view('signin',  $data, TRUE)
+		);
+	
+        $this->parser->parse('master', $data);	
 	}
 
 	public function perusahaan()
 	{
 		$sql = "SELECT id, nama FROM tm_company";
 		$data['list'] = $this->db->query($sql)->result_array();
-		$this->load->view('perusahaan', $data);
+		
+		$this->page= $this->load->view('perusahaan', $data, TRUE);
+		$this->index();
 	}
 
 	public function action($type){
@@ -107,20 +123,22 @@ class Welcome extends CI_Controller {
 			$sql = "SELECT * FROM tm_investor WHERE id_company = '".$id."'";
 			$data['investor'] = $this->db->query($sql)->result_array();
 		}
-		$this->load->view('list_data', $data);
 		
+		$this->page = $this->load->view('list_data', $data, TRUE);
+		$this->index();
 	}
 
 	public function investor($id){
 		$sql = "SELECT * FROM tm_investor WHERE id = '".$id."'";
 		$data['person'] = $this->db->query($sql)->row();
 		
-		$this->load->view('investor', $data);
+		$this->page = $this->load->view('investor', $data, TRUE);
+		$this->index();
 	}
 
 	public function updateData(){
 		$data = $this->input->post('FORM');
-		echo $sql = "
+		$sql = "
 			UPDATE tm_investor 
 			SET 
 				nama = '".$data['nama']."'
@@ -158,7 +176,8 @@ class Welcome extends CI_Controller {
 			$data['persen'] = $this->db->query($sql)->row()->persen;
 		}
 		
-		$this->load->view('report', $data);
+		$this->page = $this->load->view('report', $data, TRUE);
+		$this->index();
 	}
 
 	public function report_list(){
@@ -178,7 +197,7 @@ class Welcome extends CI_Controller {
 		
 		$html = $this->load->view('report_list', $data, true);
 		$this->load->library('m_pdf');
-		$pdfFilePath ="mypdfName-".time()."-download.pdf";
+		$pdfFilePath ="ficomindo-".time()."-download.pdf";
  	
 		$pdf = $this->m_pdf->load();	
 		$pdf->WriteHTML($html,2);
@@ -201,21 +220,20 @@ class Welcome extends CI_Controller {
 		$this->load->view('test');
 	}
 
-	public function selected(){
+	public function selected($id){
 		$all = $this->input->post('all');
 		
 		if($all == ''){
-			
+			$sql = "UPDATE tm_investor set absen = NULL WHERE id_company = $id";
+			$this->db->query($sql);
+
 			$id = $this->input->post('absen');
 			$where = implode(', ', $id);
 			$sql = "SELECT id, absen FROM tm_investor WHERE id IN ($where)";
 			$data = $this->db->query($sql)->result_array();
-
+			
 			foreach($data as $row){
-				$isi = '';
-				if($row['absen'] != date('d/m/Y') || $row['absen'] == '' || $row['absen'] == null){
-					$isi = date('d/m/Y');
-				}
+				$isi = date('d/m/Y');
 				$sql = "UPDATE tm_investor SET absen = '".$isi."' WHERE id= '".$row['id']."' ";
 				$this->db->query($sql);
 			}
